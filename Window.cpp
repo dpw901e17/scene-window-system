@@ -17,6 +17,11 @@ bool Window::GetFullscreen()
 	return fullscreen;
 }
 
+float Window::aspectRatio() const
+{
+	return static_cast<float>(m_Width) / static_cast<float>(m_Height);
+}
+
 HWND Window::GetHandle()
 {
 	if (!hwnd && !IntializeWindow()) {

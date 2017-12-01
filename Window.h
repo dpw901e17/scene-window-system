@@ -12,6 +12,7 @@ public:
 	bool GetFullscreen();
 	UINT width() const { return m_Width; }
 	UINT height() const { return m_Height; }
+	float aspectRatio() const;
 private:
 	HINSTANCE hInstance;
 	LPCTSTR windowName;
