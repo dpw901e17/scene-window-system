@@ -18,7 +18,7 @@ private:
 	float m_AspectRatio = 3.0f / 4.0f;
 	float m_Near = 0.1f;
 	float m_Far = 10.0f;
-	Vec4f m_position = { 0.0f, 2.0f, -4.0f, 0.0f };
-	Vec4f m_target = { 0.0f, 0.0f, 0.0f, 0.0f };
+	Vec4f m_position = { 0.0f, 2.0f, -4.0f,	1.0f };
+	Vec4f m_target = { 0.0f, 0.0f, 0.0f, 1.0f };
 	Vec4f m_up = { 0.0f, 1.0f, 0.0f, 0.0f };
 };
