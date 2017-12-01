@@ -9,14 +9,15 @@ class Window
 public:
 	Window(HINSTANCE hInstance, LPCTSTR windowName, LPCTSTR windowTitle, int nShowCmd, int width, int height, bool fullscreen);
 	HWND GetHandle();
-	int width() const { return m_Width; }
-	int height() const { return m_Height; }
+	bool GetFullscreen();
+	UINT width() const { return m_Width; }
+	UINT height() const { return m_Height; }
 private:
 	HINSTANCE hInstance;
 	LPCTSTR windowName;
 	LPCTSTR windowTitle;
-	int m_Width;
-	int m_Height;
+	UINT m_Width;
+	UINT m_Height;
 	int nShowCmd;
 	bool fullscreen;
 	HWND hwnd;
