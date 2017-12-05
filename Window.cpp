@@ -1,20 +1,13 @@
 #include "Window.h"
 #include <stdexcept>
 
-Window::Window(HINSTANCE hInstance, LPCTSTR windowName, LPCTSTR windowTitle, int nShowCmd, int width, int height, bool fullscreen): hwnd(nullptr)
+Window::Window(HINSTANCE hInstance, LPCTSTR windowName, LPCTSTR windowTitle, int width, int height): hwnd(nullptr)
 {
 	this->hInstance = hInstance;
 	this->windowName = windowName;
 	this->windowTitle = windowTitle;
-	this->nShowCmd = nShowCmd;
 	this->m_Width = width;
 	this->m_Height = height;
-	this->fullscreen = fullscreen;
-}
-
-bool Window::GetFullscreen()
-{
-	return fullscreen;
 }
 
 float Window::aspectRatio() const
@@ -52,16 +45,6 @@ LRESULT CALLBACK wndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 bool Window::IntializeWindow()
 {
-	if (fullscreen)
-	{
-		HMONITOR hmon = MonitorFromWindow(hwnd, MONITOR_DEFAULTTONEAREST);
-		MONITORINFO mi = { sizeof(mi) };
-		GetMonitorInfo(hmon, &mi);
-
-		m_Width = mi.rcMonitor.right - mi.rcMonitor.left;
-		m_Height = mi.rcMonitor.bottom - mi.rcMonitor.top;
-	}
-
 	WNDCLASSEX wc;
 
 	wc.cbSize = sizeof(WNDCLASSEX);
@@ -98,14 +81,9 @@ bool Window::IntializeWindow()
 		MessageBox(NULL, "ERROR - could not create window", "ERROR", MB_OK | MB_ICONERROR);
 		return false;
 	}
-	//if we are fullscreened, do it windowed fullscreen.
-	if (fullscreen)
-	{
-		SetWindowLong(hwnd, GWL_STYLE, 0);
-	}
 
 	//if everything went well, show the window.
-	ShowWindow(hwnd, nShowCmd);
+	ShowWindow(hwnd, true);
 	UpdateWindow(hwnd);
 
 	return true;

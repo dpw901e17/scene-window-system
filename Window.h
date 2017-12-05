@@ -7,9 +7,8 @@
 class Window
 {
 public:
-	Window(HINSTANCE hInstance, LPCTSTR windowName, LPCTSTR windowTitle, int nShowCmd, int width, int height, bool fullscreen);
+	Window(HINSTANCE hInstance, LPCTSTR windowName, LPCTSTR windowTitle, int width, int height);
 	HWND GetHandle();
-	bool GetFullscreen();
 	UINT width() const { return m_Width; }
 	UINT height() const { return m_Height; }
 	float aspectRatio() const;
@@ -19,8 +18,6 @@ private:
 	LPCTSTR windowTitle;
 	UINT m_Width;
 	UINT m_Height;
-	int nShowCmd;
-	bool fullscreen;
 	HWND hwnd;
 
 	//static LRESULT CALLBACK wndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
