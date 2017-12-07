@@ -112,6 +112,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Window.cpp" />
+    <ClCompile Include="WmiAccess.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h" />
@@ -120,6 +121,7 @@
     <ClInclude Include="TestConfiguration.h" />
     <ClInclude Include="Vec4f.h" />
     <ClInclude Include="Window.h" />
+    <ClInclude Include="WmiAccess.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
