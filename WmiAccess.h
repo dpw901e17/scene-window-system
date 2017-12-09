@@ -10,43 +10,60 @@
 #include <vector>
 #include <map>
 #include <string>
+#include <sstream>
 
 #define WMIA_OUTPUT_SEPARATOR L"; "
 
-struct WMIProperty
+class CsvExporter
 {
-	std::string name;
-	std::string value;
+public:
+	virtual std::string MakeString(std::string seperator) = 0;
 };
 
 class WMIDataItem
 {
-private:
-	//contains a mapping of ([property name], [property value])
-	std::vector<WMIProperty> data;
 public:
-
-	WMIDataItem() {};
-	void Add(const std::string& propName, const std::string& propVal);
-	std::string GetName(size_t index);
-	std::string GetValue(size_t index);
-	size_t Size();
+	std::string 
+		Id,
+		Timestamp,
+		ComponentType,
+		ComponentID,
+		SensorType,
+		SensorID,
+		Value;
 };
 
-class WMIDataCollection
+class PipelineStatisticsDataItem
+{
+public:
+	std::string 
+		CInvocations,
+		CPrimitives,
+		CSInvocations,
+		DSInvocations,
+		GSInvocations,
+		GSPrimitives,
+		HSInvocations,
+		IAPrimitives,
+		IAVertices,
+		PSInvocations,
+		VSInvocations;
+};
+
+template<class T>
+class DataCollection : public CsvExporter
 {
 private:
-	std::vector<WMIDataItem> items;
+	std::vector<T> items;
+
 public:
-	void Add(WMIDataItem item);
-	std::string MakeString(const std::vector<std::string> propNameOrder, const std::string& separator) const;
+	void Add(T item);
+	std::string MakeString(std::string seperator) override;
 };
 
 
 // Comment to linker to depend on this library
 #pragma comment(lib, "wbemuuid.lib")
-
-typedef  void(*DataItemDelegate)(const std::string* propDataArr, WMIDataItem* toFill);
 
 class WMIAccessor {
 private:
@@ -61,5 +78,83 @@ public:
 
 	//Executes: SELECT [wmiProperties] FROM [wmiClass] and returnes the result in a csv string
 	std::wstring Query(const bstr_t& wmiClass, const bstr_t wmiProperties[], int arrayCount);
-	WMIDataItem QueryItem(const bstr_t& wmiClass, const bstr_t wmiProperties[], const int arrayCount, DataItemDelegate fun);
+	std::vector<WMIDataItem> WMIAccessor::QueryItem(const bstr_t & wmiClass, const bstr_t wmiProperties[], const int arrayCount);
 };
+
+template<class T>
+inline void DataCollection<T>::Add(T item)
+{
+	items.push_back(item);
+}
+
+template<class T>
+inline std::string DataCollection<T>::MakeString(std::string seperator)
+{
+	throw std::runtime_error("Invalid specialization!");
+}
+
+template<>
+inline std::string DataCollection<WMIDataItem>::MakeString(std::string seperator)
+{
+	std::stringstream result;
+
+	//CSV headers:
+	result << "id" << seperator;
+	result << "Timestamp" << seperator;
+	result << "ComponentType" << seperator;
+	result << "ComponentID" << seperator;
+	result << "SensorType" << seperator;
+	result << "SensorID" << seperator;
+	result << "Value" << std::endl;
+
+	//Data:
+	for (auto& item : items) {
+		result << item.Id << seperator;
+		result << item.Timestamp << seperator;
+		result << item.ComponentType << seperator;
+		result << item.ComponentID << seperator;
+		result << item.SensorType << seperator;
+		result << item.SensorID << seperator;
+		result << item.Value << std::endl;
+	}
+
+	return result.str();
+}
+
+template<>
+inline std::string DataCollection<PipelineStatisticsDataItem>::MakeString(std::string seperator)
+{
+	std::stringstream result;
+
+	//csv headers:
+	result << "CInvocations" << seperator;
+	result << "CPrimitives" << seperator;
+	result << "CSInvocations" << seperator;
+	result << "DSInvocations" << seperator;
+	result << "GSInvocations" << seperator;
+	result << "GSPrimitives" << seperator;
+	result << "HSInvocations" << seperator;
+	result << "IAPrimitives" << seperator;
+	result << "IAVertices" << seperator;
+	result << "PSInvocations" << seperator;
+	result << "VSInvocations" << std::endl;
+
+	//data:
+	for (auto& item : items) {
+		result << item.CInvocations << seperator;
+		result << item.CPrimitives << seperator;
+		result << item.CSInvocations << seperator;
+		result << item.DSInvocations << seperator;
+		result << item.GSInvocations << seperator;
+		result << item.GSPrimitives << seperator;
+		result << item.HSInvocations << seperator;
+		result << item.IAPrimitives << seperator;
+		result << item.IAVertices << seperator;
+		result << item.PSInvocations << seperator;
+		result << item.VSInvocations << std::endl;
+	}
+
+	return result.str();
+}
+
+void Arrange_OHM_Data(const std::string* dataArr, WMIDataItem* item);

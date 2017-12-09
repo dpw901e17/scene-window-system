@@ -168,10 +168,10 @@ std::wstring WMIAccessor::Query(const bstr_t & wmiClass, const bstr_t wmiPropert
 	return result;
 }
 
-WMIDataItem WMIAccessor::QueryItem(const bstr_t & wmiClass, const bstr_t wmiProperties[], const int arrayCount, DataItemDelegate fun)
+std::vector<WMIDataItem> WMIAccessor::QueryItem(const bstr_t & wmiClass, const bstr_t wmiProperties[], const int arrayCount)
 {
-	WMIDataItem result;
-
+	std::vector<WMIDataItem> result;
+	
 	// Step 6: --------------------------------------------------
 	// Use the IWbemServices pointer to make requests of WMI ----
 
@@ -252,101 +252,54 @@ WMIDataItem WMIAccessor::QueryItem(const bstr_t & wmiClass, const bstr_t wmiProp
 		}
 
 		pclsObj->Release();
-		fun(propertyData.data(), &result);
+		WMIDataItem item;
+		Arrange_OHM_Data(propertyData.data(), &item);
+		result.push_back(item);
 	}
 
 	pEnumerator->Release();
+	
 	return result;
 }
 
-void WMIDataItem::Add(const std::string & propName, const std::string & propVal)
+//Determines how the cells (items) in the database look (name = attribute/collumn in db, value = entry in cell)
+void Arrange_OHM_Data(const std::string* dataArr, WMIDataItem* item)
 {
-	data.push_back(WMIProperty{ propName, propVal });
-}
+	/*
+	dataArr[0] is Identifyer (when called in this main).
+	dataArr[1] is Value
+	dataArr[2] is SensorType
+	Since Identifyer has the general structure "/[component]/[compId]/[sensorType]/[sensorId]",
+	then this can be split into db collumns (parts) like:  [component] | [compId] | [sensorId]
+	*/
 
-std::string WMIDataItem::GetName(size_t index)
-{
-	return data.at(index).name;
-}
-
-std::string WMIDataItem::GetValue(size_t index)
-{
-	return data.at(index).value;
-}
-
-size_t WMIDataItem::Size()
-{
-	return data.size();
-}
-
-void WMIDataCollection::Add(WMIDataItem item)
-{
-	items.push_back(item);
-}
-
-std::string WMIDataCollection::MakeString(const  std::vector<std::string> propNameOrder, const std::string& separator) const
-{
-	//make header:
-	std::string result = "id";
-
-	for (auto i = 0; i < propNameOrder.size(); ++i) {
-		result += separator + " ";
-		result += propNameOrder[i];
-	}
-
-
-	//end header
-	result += "\n";
-
-	//for each item in collection
-	for (auto itemIndex = 0; itemIndex < items.size(); ++itemIndex) {
-		auto item = items.at(itemIndex);
-
-		//create a row for each property
-		for (auto row = 0; row < item.Size() / propNameOrder.size(); ++row) {
-
-			//add ID
-			result += std::to_string(itemIndex);
-
-			//look at order:
-			for (auto orderIndex = 0; orderIndex < propNameOrder.size(); ++orderIndex) {
-				//search for collumn with property name matching the current order (at current row)
-				bool propertyFound = false;
-				auto col = 0;
-
-				while (!propertyFound && col < propNameOrder.size()) {
-					propertyFound = item.GetName(row * propNameOrder.size() + col) == propNameOrder[orderIndex];
-					if (propertyFound) {
-						result += separator + " ";
-						result += item.GetValue(row * propNameOrder.size() + col);
-					}
-					else {
-						if (!propertyFound && col == propNameOrder.size() - 1)
-						{
-							//this occurs when data NOT from the WMI query is added to the item (e.g. timestamp)
-							//since the item is created through QueryItem, then anything added to it
-							//must have happened after the query has been processes => it is at the end
-							//of the item.data set. Search for it, beginning from the end:
-							bool found = false;
-							auto index = item.Size() - 1;
-							while (!found && index >= 0) {
-								found = item.GetName(index) == propNameOrder[orderIndex];
-								if (found) {
-									result += separator + " ";
-									result += item.GetValue(index);
-								}
-								else {
-									--index;
-								}
-							}
-						}
-						++col;
-					}
-				}
+	//split Identifyer up as described above:
+	std::vector<std::string> parts;
+	std::string part = "";
+	for (char c : dataArr[0]) {
+		if (c == '/') {
+			if (part != "") {
+				parts.push_back(part);
+				part = "";
 			}
-			result += "\n";
+		}
+		else {
+			part += c;
 		}
 	}
 
-	return result;
+	//add the last identifyed part:
+	parts.push_back(part);
+
+	item->ComponentType = parts[0];
+	//some identifiers (/ram/data/[id]) only have 3 parts to them (missing the ComponentID)
+	if (parts.size() % 4 == 0) {
+		item->ComponentID = parts[1];
+	}
+	else {
+		item->ComponentID = "N/A";
+	}
+	item->SensorID = parts[parts.size() - 1];
+	item->Value = dataArr[1];
+	item->SensorType = dataArr[2];
 }
