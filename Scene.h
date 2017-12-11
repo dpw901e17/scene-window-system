@@ -7,6 +7,8 @@ class Scene
 {
 public:
 	Scene(Camera camera, std::vector<RenderObject> render_objects) : m_Camera(camera), m_RenderObjects(render_objects) {  }
+	Scene(Camera& camera, size_t dimensionCubeCount, double padding);
+	~Scene();
 
 	const Camera& camera() const { return m_Camera; }
 	const std::vector<RenderObject>& renderObjects() const { return m_RenderObjects; }

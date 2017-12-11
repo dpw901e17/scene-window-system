@@ -111,6 +111,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Scene.cpp" />
     <ClCompile Include="Window.cpp" />
     <ClCompile Include="WmiAccess.cpp" />
   </ItemGroup>
