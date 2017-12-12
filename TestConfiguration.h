@@ -9,6 +9,9 @@ struct TestConfiguration
 	bool pipelineStatistics = false;
 	bool openHardwareMonitorData = false;
 	bool rotateCubes = false;
+	size_t drawThreadCount = 1;
+	size_t cubeDimension = 2;
+	int cubePadding = 1;
 
 	//TODO: use better pattern than singleton?
 	static TestConfiguration& GetInstance() 
