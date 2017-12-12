@@ -112,6 +112,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Scene.cpp" />
+    <ClCompile Include="TestConfiguration.cpp" />
     <ClCompile Include="Window.cpp" />
     <ClCompile Include="WmiAccess.cpp" />
   </ItemGroup>

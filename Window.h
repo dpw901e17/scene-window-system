@@ -4,6 +4,7 @@
 #endif
 #include <Windows.h>
 
+
 class Window
 {
 public:
@@ -12,6 +13,7 @@ public:
 	UINT width() const { return m_Width; }
 	UINT height() const { return m_Height; }
 	float aspectRatio() const;
+	void SetTitle(const char* title);
 private:
 	UINT m_Width;
 	UINT m_Height;

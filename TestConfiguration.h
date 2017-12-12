@@ -1,4 +1,5 @@
 #pragma once
+
 struct TestConfiguration
 {
 	bool reuseCommandBuffers = true;
@@ -7,5 +8,15 @@ struct TestConfiguration
 	bool exportCsv = false;
 	bool pipelineStatistics = false;
 	bool openHardwareMonitorData = false;
+	bool rotateCubes = false;
 
+	//TODO: use better pattern than singleton?
+	static TestConfiguration& GetInstance() 
+	{ 
+		return instance; 
+	}
+
+private:
+	TestConfiguration() {};
+	static TestConfiguration instance;
 };

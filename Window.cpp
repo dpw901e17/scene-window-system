@@ -63,6 +63,11 @@ float Window::aspectRatio() const
 	return static_cast<float>(m_Width) / static_cast<float>(m_Height);
 }
 
+void Window::SetTitle(const char* title)
+{
+	SetWindowText(hwnd, title);
+}
+
 HWND Window::GetHandle() const
 {
 	return hwnd;
