@@ -26,6 +26,7 @@ public:
 	std::string 
 		Id,
 		Timestamp,
+		FPS,
 		ComponentType,
 		ComponentID,
 		SensorType,
@@ -47,7 +48,8 @@ public:
 		IAPrimitives,
 		IAVertices,
 		PSInvocations,
-		VSInvocations;
+		VSInvocations,
+		CommandListId;
 };
 
 template<class T>
@@ -101,6 +103,7 @@ inline std::string DataCollection<WMIDataItem>::MakeString(std::string seperator
 	//CSV headers:
 	result << "id" << seperator;
 	result << "Timestamp" << seperator;
+	result << "FPS" << seperator;
 	result << "ComponentType" << seperator;
 	result << "ComponentID" << seperator;
 	result << "SensorType" << seperator;
@@ -111,6 +114,7 @@ inline std::string DataCollection<WMIDataItem>::MakeString(std::string seperator
 	for (auto& item : items) {
 		result << item.Id << seperator;
 		result << item.Timestamp << seperator;
+		result << item.FPS << seperator;
 		result << item.ComponentType << seperator;
 		result << item.ComponentID << seperator;
 		result << item.SensorType << seperator;
@@ -127,6 +131,7 @@ inline std::string DataCollection<PipelineStatisticsDataItem>::MakeString(std::s
 	std::stringstream result;
 
 	//csv headers:
+	result << "CommandListId" << seperator;
 	result << "CInvocations" << seperator;
 	result << "CPrimitives" << seperator;
 	result << "CSInvocations" << seperator;
@@ -141,6 +146,7 @@ inline std::string DataCollection<PipelineStatisticsDataItem>::MakeString(std::s
 
 	//data:
 	for (auto& item : items) {
+		result << item.CommandListId << seperator;
 		result << item.CInvocations << seperator;
 		result << item.CPrimitives << seperator;
 		result << item.CSInvocations << seperator;
