@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <sstream>
+#include <vector>
 
 struct TestConfiguration
 {
@@ -39,6 +40,62 @@ struct TestConfiguration
 		ss << "Cube Padding"			<< separator << force_string(cubePadding)				<< "\n";
 
 		return ss.str();
+	}
+
+	static void SetTestConfiguration(const char* exeArgs) {
+		auto& testConfig = GetInstance();
+
+		//get exe arguments
+		std::vector<std::string> args;
+
+		std::string str(exeArgs);
+		std::string arg = "";
+		for (char c : str) {
+			if (c == ' ') {
+				args.push_back(arg);
+				arg = "";
+			}
+			else {
+				arg += c;
+			}
+		}
+
+		args.push_back(arg);
+
+		std::string a = "";
+		for (auto i = 0; i < args.size(); ++i) {
+			a = args[i];
+			if (a == "-csv") {
+				testConfig.exportCsv = true;
+			}
+			else if (a == "-sec") {
+				testConfig.seconds = stoi(args[i + 1]);
+			}
+			else if (a == "-OHM") {
+				testConfig.openHardwareMonitorData = true;
+			}
+			else if (a == "-pipelineStatistics") {
+				testConfig.pipelineStatistics = true;
+			}
+			else if (a == "-pi") {
+				testConfig.probeInterval = stoi(args[i + 1]);
+			}
+			else if (a == "-reuseComBuf") {
+				testConfig.reuseCommandBuffers = true;
+			}
+			else if (a == "-rotateCubes") {
+				testConfig.rotateCubes = true;
+			}
+			else if (a == "-threadCount") {
+				testConfig.drawThreadCount = stoi(args[i + 1]);
+			}
+			else if (a == "-cubeDim") {
+				testConfig.cubeDimension = stoi(args[i + 1]);
+			}
+			else if (a == "-cubePad") {
+				testConfig.cubePadding = stoi(args[i + 1]);
+			}
+		}
 	}
 
 private:
