@@ -3,7 +3,7 @@
 #include <queue>
 #include <thread>
 
-#define TEST_THREAD_JOB_WAIT_TIME 5
+#define TEST_THREAD_JOB_WAIT_TIME 30
 
 class ThreadHandler
 {
@@ -114,7 +114,10 @@ public:
 			threadsDone = threadsDone && !handler->isWorking;
 		}
 
-		return threadsDone && jobs.empty();
+		joblock.lock();
+		threadsDone = threadsDone && jobs.empty();
+		joblock.unlock();
+		return threadsDone;
 	}
 
 	void Stop()
