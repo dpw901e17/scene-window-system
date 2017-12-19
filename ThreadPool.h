@@ -93,7 +93,7 @@ public:
 
 		//make sure all spawned threads have terminated before detructing fields (as spawned threads have references to them)
 		while (terminatedThreads < threadHandlers.size()) {
-			std::this_thread::sleep_for(TEST_THREAD_JOB_WAIT_TIME);
+			std::this_thread::sleep_for(std::chrono::milliseconds(TEST_THREAD_JOB_WAIT_TIME));
 		}
 
 		for (auto& handler : threadHandlers) {
@@ -101,7 +101,7 @@ public:
 		}
 	}
 
-	void AddJob(ThreadJob<ArgT> job) {
+	void AddThreadJob(ThreadJob<ArgT> job) {
 		joblock.lock();
 		jobs.push(job);
 		joblock.unlock();
