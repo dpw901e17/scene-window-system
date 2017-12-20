@@ -109,12 +109,16 @@ public:
 
 	bool Idle()
 	{
-		bool threadsDone = true;
+		joblock.lock();
+		bool noJobs = jobs.empty();
+		joblock.unlock();
+
+		bool threadsDone = noJobs;
 		for (auto& handler : threadHandlers) {
 			threadsDone = threadsDone && !handler->isWorking;
 		}
-
-		return threadsDone && jobs.empty();
+		
+		return threadsDone;
 	}
 
 	void Stop()
