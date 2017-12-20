@@ -1,9 +1,10 @@
 #pragma once
 #include <mutex>
+#include <condition_variable>
 #include <queue>
 #include <thread>
 
-#define TEST_THREAD_JOB_WAIT_TIME 5
+#define TEST_THREAD_JOB_WAIT_TIME 1
 
 class ThreadHandler
 {
@@ -111,13 +112,13 @@ public:
 	{
 		joblock.lock();
 		bool noJobs = jobs.empty();
-		joblock.unlock();
 
 		bool threadsDone = noJobs;
 		for (auto& handler : threadHandlers) {
 			threadsDone = threadsDone && !handler->isWorking;
 		}
 		
+		joblock.unlock();
 		return threadsDone;
 	}
 
@@ -135,13 +136,16 @@ void ThreadMain(ThreadArg<ArgT>& arg) {
 	auto& terminatedThreads = arg.terminatedThreads;
 
 	while (keepAlive) {
+		//semaphore.wait();
 		joblock.lock();
 		if (jobs.size() > 0) {
+
 			auto threadJob = jobs.front();
 			jobs.pop();
-			joblock.unlock();
 
 			arg.isWorking = true;
+			joblock.unlock();
+
 			threadJob.Execute();
 			arg.isWorking = false;
 		}
