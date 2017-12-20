@@ -136,9 +136,8 @@ void ThreadMain(ThreadArg<ArgT>& arg) {
 	auto& terminatedThreads = arg.terminatedThreads;
 
 	while (keepAlive) {
-		//semaphore.wait();
-		joblock.lock();
-		if (jobs.size() > 0) {
+		bool locked = joblock.try_lock();
+		if (locked && jobs.size() > 0) {
 
 			auto threadJob = jobs.front();
 			jobs.pop();
@@ -150,7 +149,9 @@ void ThreadMain(ThreadArg<ArgT>& arg) {
 			arg.isWorking = false;
 		}
 		else {
-			joblock.unlock();
+			if (locked) {
+				joblock.unlock();
+			}
 			std::this_thread::sleep_for(std::chrono::milliseconds(TEST_THREAD_JOB_WAIT_TIME));
 		}
 	}
