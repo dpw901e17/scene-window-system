@@ -6,15 +6,21 @@
 
 #define TEST_THREAD_JOB_WAIT_TIME 1
 
+using Clock = std::chrono::high_resolution_clock;	//<-- for debugging
+
 class ThreadHandler
 {
 private:
 	std::thread* thread;
+	int id;
+
 public:
 	//TODO: make diz private?
 	volatile bool isWorking = false;
+	Clock::time_point endTime;
+	Clock::time_point startTime;
 	
-	ThreadHandler(std::thread* thread) : thread(thread) {};
+	ThreadHandler(std::thread* thread, int id) : thread(thread), id(id) {};
 	ThreadHandler() = default;
 
 	~ThreadHandler() {
@@ -53,6 +59,9 @@ struct ThreadArg
 	bool& keepThreadsAlive = true;
 	volatile bool& isWorking;
 	volatile size_t& terminatedThreads = 0;
+	int id;
+	Clock::time_point* startTime;
+	Clock::time_point* endTime;
 };
 
 template<typename ArgT>
@@ -64,18 +73,18 @@ private:
 	std::mutex joblock;
 	bool keepThreadsAlive = true;
 	volatile size_t terminatedThreads = 0;
-
 public:
+
 	ThreadPool<ArgT>(size_t threadCount) {
 
 		threadHandlers.resize(threadCount);
 		for (auto i = 0; i < threadCount; ++i) {
 
 			//temp handler (we don't have the thread yet)
-			auto threadHandler = new ThreadHandler(nullptr);
+			auto threadHandler = new ThreadHandler();
 
 			//create the thread (with a member from threadHandler as an argument)
-			ThreadArg<ArgT> arg = { jobs, &joblock, keepThreadsAlive, threadHandler->isWorking, terminatedThreads };
+			ThreadArg<ArgT> arg = { jobs, &joblock, keepThreadsAlive, threadHandler->isWorking, terminatedThreads, i, &threadHandler->startTime, &threadHandler->endTime };
 			std::thread* thread = new std::thread(ThreadMain<ArgT>, arg);
 
 			threadHandler->SetThread(thread);
@@ -117,7 +126,6 @@ public:
 		for (auto& handler : threadHandlers) {
 			threadsDone = threadsDone && !handler->isWorking;
 		}
-		
 		joblock.unlock();
 		return threadsDone;
 	}
@@ -134,18 +142,24 @@ void ThreadMain(ThreadArg<ArgT>& arg) {
 	auto& joblock = *arg.joblock;
 	auto& keepAlive = arg.keepThreadsAlive;
 	auto& terminatedThreads = arg.terminatedThreads;
+	auto& startTime = *arg.startTime;
+	auto& endTime = *arg.endTime;
 
 	while (keepAlive) {
 		bool locked = joblock.try_lock();
 		if (locked && jobs.size() > 0) {
+			startTime = Clock::time_point();
+			endTime = Clock::time_point();
 
 			auto threadJob = jobs.front();
 			jobs.pop();
 
 			arg.isWorking = true;
 			joblock.unlock();
-
+			
+			startTime = Clock::now();
 			threadJob.Execute();
+			endTime = Clock::now();
 			arg.isWorking = false;
 		}
 		else {
