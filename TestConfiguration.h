@@ -15,6 +15,7 @@ struct TestConfiguration
 	size_t drawThreadCount = 1;
 	size_t cubeDimension = 2;
 	int cubePadding = 1;
+	bool recordFPS = false;
 
 	//TODO: use better pattern than singleton?
 	static TestConfiguration& GetInstance() 
@@ -94,6 +95,9 @@ struct TestConfiguration
 			}
 			else if (a == "-cubePad") {
 				testConfig.cubePadding = stoi(args[i + 1]);
+			}
+			else if (a == "-fps") {
+				testConfig.recordFPS = true;
 			}
 		}
 	}
