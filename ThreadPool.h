@@ -169,6 +169,7 @@ void ThreadMain(ThreadArg<ArgT>& arg) {
 			std::this_thread::sleep_for(std::chrono::milliseconds(TEST_THREAD_JOB_WAIT_TIME));
 		}
 	}
-
+	joblock.lock();
 	++terminatedThreads;
+	joblock.unlock();
 }
