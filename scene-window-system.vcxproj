@@ -122,7 +122,6 @@
     <ClInclude Include="Scene.h" />
     <ClInclude Include="TestConfiguration.h" />
     <ClInclude Include="ThreadPool.h" />
-    <ClInclude Include="ThreadPool.hpp" />
     <ClInclude Include="Vec4f.h" />
     <ClInclude Include="Window.h" />
     <ClInclude Include="WmiAccess.h" />
